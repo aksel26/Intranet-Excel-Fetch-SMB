@@ -6,6 +6,14 @@ const fs = require("fs");
 
 const router = express.Router();
 
+// 세션 확인 미들웨어
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect("/login");
+  }
+  next();
+}
+
 // SMB 클라이언트 설정
 const smbClient = new SMB2({
   share: "\\\\192.168.0.2\\ACG",
@@ -65,7 +73,7 @@ router.get("/read-excel", async (req, res) => {
   }
 });
 
-router.get("/list-files", async (req, res) => {
+router.get("/list-files", requireLogin, async (req, res) => {
   try {
     const directory = decodeURIComponent("[ACG] 식대정리"); // SMB 서버의 폴더 경로
     const files = await listFilesFromSMB(directory);

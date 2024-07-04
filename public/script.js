@@ -55,3 +55,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error fetching file list:", error);
   }
 });
+
+function logout() {
+  fetch("/logout")
+    .then(() => (window.location.href = "/login"))
+    .catch((err) => console.error("Error logging out:", err));
+}

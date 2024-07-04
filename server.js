@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const excelRoutes = require("./routes/excelRoutes");
+const loginRoutes = require("./routes/loginRoutes");
 
 const app = express();
 const port = 3000;
@@ -9,6 +10,7 @@ const port = 3000;
 app.use(express.static(path.join(__dirname, "public")));
 
 // 라우트 설정
+app.use("/", loginRoutes);
 app.use("/", excelRoutes);
 
 app.listen(port, () => {
