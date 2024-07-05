@@ -13,18 +13,20 @@ function requireLogin(req, res, next) {
   }
   next();
 }
-
-// SMB 클라이언트 설정
-const smbClient = new SMB2({
-  share: "\\\\192.168.0.2\\ACG",
-  domain: "acg",
-  username: "Administrator",
-  password: "!acg%6185",
-});
+// SMB 클라이언트 설정 함수
+function createSmbClient() {
+  return new SMB2({
+    share: "\\\\192.168.0.2\\ACG",
+    domain: "acg",
+    username: "Administrator",
+    password: "!acg%6185",
+  });
+}
 
 // 엑셀 파일 읽기 함수
 async function readExcelFromSMB(filePath) {
   return new Promise((resolve, reject) => {
+    const smbClient = createSmbClient();
     smbClient.readFile(filePath, (err, data) => {
       if (err) return reject(err);
 
@@ -46,42 +48,51 @@ async function readExcelFromSMB(filePath) {
   });
 }
 
+// 이름 포함 여부 확인 함수
+function findIndexOfString(array, searchString) {
+  return array.find((element) => element.includes(searchString));
+}
+
 // 폴더 내 파일 리스트 조회 함수
 async function listFilesFromSMB(directory) {
   return new Promise((resolve, reject) => {
+    const smbClient = createSmbClient();
     smbClient.readdir(directory, (err, files) => {
+      console.log("🚀 ~ smbClient.readdir ~ err:", err);
       if (err) return reject(err);
       resolve(files);
     });
   });
 }
 
-router.get("/read-excel", async (req, res) => {
-  try {
-    console.log("🚀 ~ router.get ~ req.query:", req.query);
-    const { search } = req.query;
-    const dd = search.toString();
-    console.log("🚀 ~ router.get ~ dd:", dd);
-
-    const filePath = decodeURIComponent(`[ACG] 식대정리\\${dd}`); // SMB 서버의 파일 경로
-
-    const data = await readExcelFromSMB(filePath);
-    res.json(data);
-  } catch (error) {
-    console.error("Error reading Excel file:", error);
-    res.status(500).json({ error: "Failed to read Excel file" });
-  }
-});
-
 router.get("/list-files", requireLogin, async (req, res) => {
   try {
     const directory = decodeURIComponent("[ACG] 식대정리"); // SMB 서버의 폴더 경로
     const files = await listFilesFromSMB(directory);
-    res.json(files);
+
+    if (files.length > 0) {
+      const index = findIndexOfString(files, "윤용설");
+
+      const filePath = decodeURIComponent(`[ACG] 식대정리\\${index}`); // SMB 서버의 파일 경로
+
+      const data = await readExcelFromSMB(filePath);
+
+      res.json(data);
+    }
   } catch (error) {
     console.error("Error listing files:", error);
     res.status(500).json({ error: "Failed to list files" });
   }
+});
+
+router.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.redirect("/");
+    }
+    res.clearCookie("sid");
+    res.redirect("/");
+  });
 });
 
 module.exports = router;
