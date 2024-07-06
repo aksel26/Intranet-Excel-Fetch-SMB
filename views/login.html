@@ -4,17 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
+    <link rel="stylesheet" href="css/login.css" />
   </head>
   <body>
-    <h1>로그인</h1>
-    <form action="/login" method="post">
-      <label for="username">사용자 이름:</label>
-      <input type="text" id="username" name="username" required />
-      <br />
-      <label for="password">비밀번호:</label>
-      <input type="password" id="password" name="password" required />
-      <br />
-      <button type="submit">로그인</button>
-    </form>
+    <div class="login-container">
+      <h2>로그인</h2>
+      <form action="/login" method="post">
+        <input name="username" id="email" placeholder="이메일" required />
+        <input name="password" type="password" id="password" placeholder="비밀번호" required />
+        <button type="submit">로그인</button>
+      </form>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="js/login.js"></script>
   </body>
 </html>
