@@ -67,22 +67,34 @@ async function listFilesFromSMB(directory) {
 
 router.get("/list-files", requireLogin, async (req, res) => {
   try {
-    const directory = decodeURIComponent("[ACG] 식대정리"); // SMB 서버의 폴더 경로
+    const directory = decodeURIComponent("test"); // SMB 서버의 폴더 경로
     const files = await listFilesFromSMB(directory);
 
     if (files.length > 0) {
-      const index = findIndexOfString(files, "윤용설");
+      const index = findIndexOfString(files, "김현민");
 
       const filePath = decodeURIComponent(`[ACG] 식대정리\\${index}`); // SMB 서버의 파일 경로
 
       const data = await readExcelFromSMB(filePath);
 
-      res.json(data);
+      // res.json({tableData:data, user:req.session.user});
+      const resData = { tableData: data, user: "윤용설" };
+      res.json(resData);
     }
   } catch (error) {
     console.error("Error listing files:", error);
     res.status(500).json({ error: "Failed to list files" });
   }
+});
+
+router.post("/updateExcel", (req, res) => {
+  const { payerName, place, amount } = req.body;
+  console.log(
+    "🚀 ~ router.post ~ payerName, place, amount:",
+    payerName,
+    place,
+    amount
+  );
 });
 
 router.get("/logout", (req, res) => {
