@@ -4,14 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Excel Reader</title>
-    <!-- <script defer src="js/script.js"></script> -->
+    <script defer src="js/script.js"></script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/reset-css@4.0.1/reset.min.css"
     />
 
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css"
+    />
     <script>
       function calculatePerPerson() {
         const totalAmount = parseFloat(
@@ -62,7 +65,7 @@
     <style>
       .floating-button {
         position: fixed;
-        bottom: 20px;
+        bottom: 60px;
         right: 20px;
         width: 40px;
         height: 40px;
@@ -103,15 +106,21 @@
       .popup-content {
         text-align: center;
       }
+      .odometer.odometer-auto-theme .odometer-ribbon-inner,
+      .odometer.odometer-theme-default .odometer-ribbon-inner {
+        transition-duration: 0.5s !important;
+      }
     </style>
   </head>
 
   <body
-    class="bg-[#f5f5f5] flex items-center justify-center h-screen flex-col items-center p-4 gap-y-8"
+    class="bg-[#f5f5f5] flex items-center justify-center h-screen flex-col items-center p-4 gap-y-8 relative box-border"
   >
     <div class="w-full flex flex-col justify-start items-start gap-y-1">
       <div class="flex items-center">
-        <p class="font-bold text-xl">안녕하세요, 안녕안녕님,</p>
+        <p class="font-bold text-xl">
+          안녕하세요, <span id="userName">안녕안녕</span>님,
+        </p>
         <video width="40" height="30" autoplay loop muted>
           <source src="video/wavingHand.webm" type="video/webm" />
           Your browser does not support the video tag.
@@ -122,12 +131,19 @@
     <div class="flex w-full">
       <div class="flex flex-col gap-y-2 w-full">
         <div class="flex gap-x-2">
-          <select name="" id="">
+          <select name="selectMonth" id="selectMonth" onchange="selectMonth()">
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
             <option value="4">4</option>
-            <option value="5">5</option></select
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option></select
           ><span>월 식대 조회</span>
         </div>
 
@@ -135,163 +151,205 @@
           <p>
             <span>🔔</span>
             <span class="text-[#b7e9ff] font-light">이번달 남은 식대는</span>
-            <strong class="text-white font-medium text-xl underline"
-              >300,000 원</strong
+            <strong
+              id="extraBalance"
+              class="odometer text-white font-medium text-xl underline"
+              >- 원</strong
             >
             <span class="text-[#b7e9ff] font-light">입니다.</span>
           </p>
         </div>
       </div>
     </div>
-    <div class="w-full flex flex-col gap-y-4">
-      <div class="bg-[#ebebeb] p-5 rounded-lg">
-        <p class="font-bold">☑️ 누가 결제했나요 ?</p>
-        <input
-          class="w-full px-3 py-2 border border-gray-300 rounded"
-          type="number"
-          placeholder="결제한 사람의 성함을 입력해 주세요."
-        />
-      </div>
-      <div class="bg-[#ebebeb] p-5 rounded-lg">
-        <p class="font-bold">☑️ 어디서 드셨나요 ?</p>
-        <input
-          class="w-full px-3 py-2 border border-gray-300 rounded"
-          type="number"
-          placeholder="식당 상호명을 입력해 주세요."
-        />
-      </div>
-      <div class="bg-[#ebebeb] p-5 rounded-lg">
-        <div class="flex justify-between items-center">
-          <p class="font-bold">☑️ 얼마를 입력할까요 ?</p>
-          <div class="flex items-center gap-x-2">
-            <input type="checkbox" id="lunchExpenses" name="lunchExpenses" />
-            <label class="text-sm" for="lunchExpenses">기본식대</label>
-          </div>
+    <form
+      onsubmit="saveExcel(event)"
+      method="post"
+      class="w-full"
+      id="submitExcel"
+    >
+      <div class="flex flex-col gap-y-4">
+        <div class="bg-[#ebebeb] p-5 rounded-lg">
+          <p class="font-bold">☑️ 누가 결제했나요 ?</p>
+          <input
+            type="text"
+            name="payerName"
+            id="payerName"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded"
+            placeholder="결제한 사람의 성함을 입력해 주세요."
+          />
         </div>
-        <input
-          class="w-full px-3 py-2 border border-gray-300 rounded"
-          type="number"
-          suffiex="원"
-          placeholder="금액을 입력하세요. 입력 예)10,000"
-        />
-      </div>
+        <div class="bg-[#ebebeb] p-5 rounded-lg">
+          <p class="font-bold">☑️ 어디서 드셨나요 ?</p>
+          <input
+            type="text"
+            name="place"
+            id="place"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded"
+            type="number"
+            placeholder="식당 상호명을 입력해 주세요."
+          />
+        </div>
+        <div class="bg-[#ebebeb] p-5 rounded-lg">
+          <div class="flex justify-between items-center">
+            <p class="font-bold">☑️ 얼마를 입력할까요 ?</p>
+            <div class="flex items-center gap-x-2">
+              <input
+                type="checkbox"
+                id="lunchExpenses"
+                name="lunchExpenses"
+                onclick="if(this.checked){document.getElementById('amountInput').value='10000';}else{document.getElementById('amountInput').value='';}"
+              />
+              <label class="text-sm" for="lunchExpenses">기본식대</label>
+            </div>
+          </div>
+          <input
+            type="number"
+            name="amount"
+            id="amount"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded"
+            type="number"
+            id="amountInput"
+            suffiex="원"
+            placeholder="금액을 입력하세요."
+          />
+        </div>
 
-      <button
-        id="floatingButton"
-        class="floating-button flex justify-center items-center"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide lucide-calculator"
+        <div
+          class="absolute bottom-0 h-auto bg-slate-300 w-auto left-0 right-0 p-3 px-5"
         >
-          <rect width="16" height="20" x="4" y="2" rx="2" />
-          <line x1="8" x2="16" y1="6" y2="6" />
-          <line x1="16" x2="16" y1="14" y2="18" />
-          <path d="M16 10h.01" />
-          <path d="M12 10h.01" />
-          <path d="M8 10h.01" />
-          <path d="M12 14h.01" />
-          <path d="M8 14h.01" />
-          <path d="M12 18h.01" />
-          <path d="M8 18h.01" />
-        </svg>
-      </button>
+          <button
+            form="submitExcel"
+            type="submit"
+            class="w-full bg-white text-[#005b99] px-5 py-2.5 text-base bg-blue-500 border-[#005b99] border-[1px] border-solid rounded-lg cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#005b99] active:scale-95 active:text-white hover:text-white active:shadow-md relative overflow-hidden group"
+          >
+            저장하기
+            <span
+              class="absolute w-0 h-0 bg-white opacity-30 rounded-full group-active:animate-ripple"
+            ></span>
+          </button>
+        </div>
 
-      <div id="overlay" class="overlay"></div>
+        <button
+          id="floatingButton"
+          class="floating-button flex justify-center items-center"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-calculator"
+          >
+            <rect width="16" height="20" x="4" y="2" rx="2" />
+            <line x1="8" x2="16" y1="6" y2="6" />
+            <line x1="16" x2="16" y1="14" y2="18" />
+            <path d="M16 10h.01" />
+            <path d="M12 10h.01" />
+            <path d="M8 10h.01" />
+            <path d="M12 14h.01" />
+            <path d="M8 14h.01" />
+            <path d="M12 18h.01" />
+            <path d="M8 18h.01" />
+          </svg>
+        </button>
 
-      <div id="popup" class="popup rounded-xl">
-        <div class="popup-content">
-          <div class="w-full px-5 pt-8">
-            <div class="flex justify-between">
-              <p class="font-bold text-left">🧮 식대 계산기</p>
-              <button id="closePopup">✖︎</button>
+        <div id="overlay" class="overlay"></div>
+
+        <div id="popup" class="popup rounded-xl">
+          <div class="popup-content">
+            <div class="w-full px-5 pt-8">
+              <div class="flex justify-between">
+                <p class="font-bold text-left">🧮 식대 계산기</p>
+                <button id="closePopup">✖︎</button>
+              </div>
+              <div
+                class="container mx-auto p-4 py-8 bg-white shadow-sm rounded-lg max-w-md"
+              >
+                <div id="step1" class="step active">
+                  <h4 class="text-md font-semibold mb-1 text-left">
+                    1단계: 결제금액 입력
+                  </h4>
+                  <input
+                    class="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
+                    type="number"
+                    id="totalAmount"
+                    placeholder="결제금액을 입력해 주세요."
+                  />
+                  <div class="flex justify-end">
+                    <button
+                      class="px-4 py-1 bg-[#005B99] text-white rounded text-sm hover:bg-blue-600"
+                      onclick="nextStep(1)"
+                    >
+                      다음
+                    </button>
+                  </div>
+                </div>
+                <div id="step2" class="step hidden">
+                  <h4 class="text-md font-semibold mb-1 text-left">
+                    2단계: 인원 수 입력
+                  </h4>
+                  <input
+                    class="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
+                    type="number"
+                    id="peopleCount"
+                    placeholder="같이 먹은 인원 총원"
+                  />
+                  <div class="flex justify-between">
+                    <button
+                      class="px-4 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+                      onclick="prevStep(2)"
+                    >
+                      이전
+                    </button>
+                    <button
+                      class="px-4 py-1 text-sm bg-[#005B99] text-white rounded hover:bg-blue-600"
+                      onclick="nextStep(2)"
+                    >
+                      다음
+                    </button>
+                  </div>
+                </div>
+                <div id="step3" class="step hidden">
+                  <h3 class="text-lg font-semibold mb-1 text-left">결과</h3>
+                  <p class="mt-5 mb-8">
+                    1인당 지불 금액:
+                    <span id="result" class="font-bold"></span>원
+                  </p>
+                  <div class="flex justify-between">
+                    <button
+                      class="px-4 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+                      onclick="prevStep(3)"
+                    >
+                      이전
+                    </button>
+                    <button
+                      class="px-4 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                      onclick="resetCalculator()"
+                    >
+                      다시 계산하기
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
             <div
-              class="container mx-auto p-4 py-8 bg-white shadow-sm rounded-lg max-w-md"
+              class="bg-[#005B99] rounded-br-xl rounded-bl-xl py-2"
+              id="closePopup"
             >
-              <div id="step1" class="step active">
-                <h4 class="text-md font-semibold mb-1 text-left">
-                  1단계: 결제금액 입력
-                </h4>
-                <input
-                  class="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
-                  type="number"
-                  id="totalAmount"
-                  placeholder="결제금액을 입력해 주세요."
-                />
-                <div class="flex justify-end">
-                  <button
-                    class="px-4 py-1 bg-[#005B99] text-white rounded text-sm hover:bg-blue-600"
-                    onclick="nextStep(1)"
-                  >
-                    다음
-                  </button>
-                </div>
-              </div>
-              <div id="step2" class="step hidden">
-                <h4 class="text-md font-semibold mb-1 text-left">
-                  2단계: 인원 수 입력
-                </h4>
-                <input
-                  class="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
-                  type="number"
-                  id="peopleCount"
-                  placeholder="같이 먹은 인원 총원"
-                />
-                <div class="flex justify-between">
-                  <button
-                    class="px-4 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
-                    onclick="prevStep(2)"
-                  >
-                    이전
-                  </button>
-                  <button
-                    class="px-4 py-1 text-sm bg-[#005B99] text-white rounded hover:bg-blue-600"
-                    onclick="nextStep(2)"
-                  >
-                    다음
-                  </button>
-                </div>
-              </div>
-              <div id="step3" class="step hidden">
-                <h3 class="text-lg font-semibold mb-1 text-left">결과</h3>
-                <p class="mt-5 mb-8">
-                  1인당 지불 금액: <span id="result" class="font-bold"></span>원
-                </p>
-                <div class="flex justify-between">
-                  <button
-                    class="px-4 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
-                    onclick="prevStep(3)"
-                  >
-                    이전
-                  </button>
-                  <button
-                    class="px-4 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                    onclick="resetCalculator()"
-                  >
-                    다시 계산하기
-                  </button>
-                </div>
-              </div>
+              <button id="closePopup" class="text-white">닫기</button>
             </div>
-          </div>
-          <div
-            class="bg-[#005B99] rounded-br-xl rounded-bl-xl py-2"
-            id="closePopup"
-          >
-            <button id="closePopup" class="text-white">닫기</button>
           </div>
         </div>
       </div>
-    </div>
+    </form>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
 
@@ -444,5 +502,6 @@
       }
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
   </body>
 </html>
