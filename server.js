@@ -7,6 +7,8 @@ const excelRoutes = require("./routes/excelRoutes");
 const http = require("http");
 
 const app = express();
+app.use(bodyParser.json());
+
 const port = 3000;
 
 // 루트 경로 ('/')
