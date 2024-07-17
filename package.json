@@ -11,12 +11,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@marsaud/smb2": "^0.18.0",
     "body-parser": "^1.20.2",
+    "exceljs": "^4.4.0",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "http-errors": "^2.0.0",
     "lucide": "^0.400.0",
     "smb2": "^0.2.11",
+    "smbclient": "^1.0.3",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
