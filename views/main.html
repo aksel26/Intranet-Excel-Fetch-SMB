@@ -36,6 +36,15 @@
       }
     </script>
     <style>
+      select {
+        /*ios대응*/
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background: url("icon/arrowDown.svg") no-repeat 98% 50% #fff; /*화살표 select박스 오른쪽 중앙 배치,배경 흰색*/
+
+        /*화살표 배경 넣기*/
+      }
       body {
         font-family: Arial, sans-serif;
         display: flex;
@@ -65,7 +74,7 @@
     <style>
       .floating-button {
         position: fixed;
-        bottom: 60px;
+        top: 60px;
         right: 20px;
         width: 40px;
         height: 40px;
@@ -114,24 +123,32 @@
   </head>
 
   <body
-    class="bg-[#f5f5f5] flex items-center justify-center h-screen flex-col items-center p-4 gap-y-8 relative box-border"
+    class="bg-[#f5f5f5] flex h-screen flex-col p-4 pt-8 relative box-border justify-start gap-y-4"
   >
     <div class="w-full flex flex-col justify-start items-start gap-y-1">
       <div class="flex items-center">
         <p class="font-bold text-xl">
-          안녕하세요, <span id="userName">안녕안녕</span>님,
+          안녕하세요,
+          <span id="userName" class="font-bold text-[#005B99]">-</span>
+          님,
         </p>
-        <video width="40" height="30" autoplay loop muted>
-          <source src="video/wavingHand.webm" type="video/webm" />
-          Your browser does not support the video tag.
-        </video>
+        <img
+          style="width: 40px; height: 40px"
+          src="video/wavingHand-unscreen.gif"
+          alt="hi"
+        />
       </div>
-      <p class="font-bold text-md">맛점하셨나요 ?</p>
+      <p class="font-bold text-md">🍚 맛점하셨나요 ?</p>
     </div>
     <div class="flex w-full">
       <div class="flex flex-col gap-y-2 w-full">
-        <div class="flex gap-x-2">
-          <select name="selectMonth" id="selectMonth" onchange="selectMonth()">
+        <div class="flex gap-x-2 items-center">
+          <select
+            class="min-h-[20px] rounded-lg border-gray-300 border border-gray-300 pr-6 pl-4 py-1 max-w-max"
+            name="selectMonth"
+            id="selectMonth"
+            onchange="selectMonth()"
+          >
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
@@ -164,36 +181,36 @@
     <form
       onsubmit="saveExcel(event)"
       method="post"
-      class="w-full"
+      class="w-full max-h-[calc(100%-16rem)] overflow-scroll scroll-smooth pb-4"
       id="submitExcel"
     >
       <div class="flex flex-col gap-y-4">
         <div class="bg-[#ebebeb] p-5 rounded-lg">
-          <p class="font-bold">☑️ 누가 결제했나요 ?</p>
+          <p class="font-bold mb-1">☑️ 누가 결제했나요 ?</p>
           <input
             type="text"
             name="payerName"
             id="payerName"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg"
             placeholder="결제한 사람의 성함을 입력해 주세요."
           />
         </div>
         <div class="bg-[#ebebeb] p-5 rounded-lg">
-          <p class="font-bold">☑️ 어디서 드셨나요 ?</p>
+          <p class="font-bold mb-1">☑️ 어디서 드셨나요 ?</p>
           <input
             type="text"
             name="place"
             id="place"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg"
             type="number"
             placeholder="식당 상호명을 입력해 주세요."
           />
         </div>
         <div class="bg-[#ebebeb] p-5 rounded-lg">
           <div class="flex justify-between items-center">
-            <p class="font-bold">☑️ 얼마를 입력할까요 ?</p>
+            <p class="font-bold mb-1">☑️ 얼마를 입력할까요 ?</p>
             <div class="flex items-center gap-x-2">
               <input
                 type="checkbox"
@@ -205,16 +222,31 @@
             </div>
           </div>
           <input
-            type="number"
             name="amount"
             id="amount"
             required
-            class="w-full px-3 py-2 border border-gray-300 rounded"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg"
             type="number"
             id="amountInput"
             suffiex="원"
             placeholder="금액을 입력하세요."
+            oninput="formatCurrency(amount)"
           />
+        </div>
+        <div class="bg-[#ebebeb] p-5 rounded-lg">
+          <p class="font-bold mb-1">☑️ 근태현황을 선택해 주세요</p>
+          <select
+            name="attendance"
+            id="attendance"
+            onchange="selectAttendance()"
+            class="w-full min-h-[37px] rounded-lg border border-gray-300 px-3"
+          >
+            <option value="근무">근무</option>
+            <option value="재택근무">재택근무</option>
+            <option value="연차/휴무">연차/휴무</option>
+            <option value="오전 반차/휴무">오전반차</option>
+            <option value="오후 반차/휴무">오후반차</option>
+          </select>
         </div>
 
         <div
@@ -231,125 +263,119 @@
             ></span>
           </button>
         </div>
+      </div>
+    </form>
+    <button
+      id="floatingButton"
+      type="button"
+      class="floating-button flex justify-center items-center"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-calculator"
+      >
+        <rect width="16" height="20" x="4" y="2" rx="2" />
+        <line x1="8" x2="16" y1="6" y2="6" />
+        <line x1="16" x2="16" y1="14" y2="18" />
+        <path d="M16 10h.01" />
+        <path d="M12 10h.01" />
+        <path d="M8 10h.01" />
+        <path d="M12 14h.01" />
+        <path d="M8 14h.01" />
+        <path d="M12 18h.01" />
+        <path d="M8 18h.01" />
+      </svg>
+    </button>
 
-        <button
-          id="floatingButton"
-          class="floating-button flex justify-center items-center"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-calculator"
+    <div id="overlay" class="overlay"></div>
+
+    <div id="popup" class="popup rounded-xl">
+      <div class="popup-content">
+        <div class="w-full px-5 pt-8">
+          <div class="flex justify-between">
+            <p class="font-bold text-left">🧮 식대 계산기</p>
+            <button id="closePopup">✖︎</button>
+          </div>
+          <div
+            class="container mx-auto p-4 py-8 bg-white shadow-sm rounded-lg max-w-md"
           >
-            <rect width="16" height="20" x="4" y="2" rx="2" />
-            <line x1="8" x2="16" y1="6" y2="6" />
-            <line x1="16" x2="16" y1="14" y2="18" />
-            <path d="M16 10h.01" />
-            <path d="M12 10h.01" />
-            <path d="M8 10h.01" />
-            <path d="M12 14h.01" />
-            <path d="M8 14h.01" />
-            <path d="M12 18h.01" />
-            <path d="M8 18h.01" />
-          </svg>
-        </button>
-
-        <div id="overlay" class="overlay"></div>
-
-        <div id="popup" class="popup rounded-xl">
-          <div class="popup-content">
-            <div class="w-full px-5 pt-8">
-              <div class="flex justify-between">
-                <p class="font-bold text-left">🧮 식대 계산기</p>
-                <button id="closePopup">✖︎</button>
-              </div>
-              <div
-                class="container mx-auto p-4 py-8 bg-white shadow-sm rounded-lg max-w-md"
-              >
-                <div id="step1" class="step active">
-                  <h4 class="text-md font-semibold mb-1 text-left">
-                    1단계: 결제금액 입력
-                  </h4>
-                  <input
-                    class="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
-                    type="number"
-                    id="totalAmount"
-                    placeholder="결제금액을 입력해 주세요."
-                  />
-                  <div class="flex justify-end">
-                    <button
-                      class="px-4 py-1 bg-[#005B99] text-white rounded text-sm hover:bg-blue-600"
-                      onclick="nextStep(1)"
-                    >
-                      다음
-                    </button>
-                  </div>
-                </div>
-                <div id="step2" class="step hidden">
-                  <h4 class="text-md font-semibold mb-1 text-left">
-                    2단계: 인원 수 입력
-                  </h4>
-                  <input
-                    class="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
-                    type="number"
-                    id="peopleCount"
-                    placeholder="같이 먹은 인원 총원"
-                  />
-                  <div class="flex justify-between">
-                    <button
-                      class="px-4 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
-                      onclick="prevStep(2)"
-                    >
-                      이전
-                    </button>
-                    <button
-                      class="px-4 py-1 text-sm bg-[#005B99] text-white rounded hover:bg-blue-600"
-                      onclick="nextStep(2)"
-                    >
-                      다음
-                    </button>
-                  </div>
-                </div>
-                <div id="step3" class="step hidden">
-                  <h3 class="text-lg font-semibold mb-1 text-left">결과</h3>
-                  <p class="mt-5 mb-8">
-                    1인당 지불 금액:
-                    <span id="result" class="font-bold"></span>원
-                  </p>
-                  <div class="flex justify-between">
-                    <button
-                      class="px-4 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
-                      onclick="prevStep(3)"
-                    >
-                      이전
-                    </button>
-                    <button
-                      class="px-4 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-                      onclick="resetCalculator()"
-                    >
-                      다시 계산하기
-                    </button>
-                  </div>
-                </div>
+            <div id="step1" class="step active">
+              <h4 class="text-md font-semibold mb-1 text-left">
+                1단계: 결제금액 입력
+              </h4>
+              <input
+                class="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
+                type="number"
+                id="totalAmount"
+                placeholder="결제금액을 입력해 주세요."
+              />
+              <div class="flex justify-end">
+                <button
+                  class="px-4 py-1 bg-[#005B99] text-white rounded text-sm hover:bg-blue-600"
+                  onclick="nextStep(1)"
+                >
+                  다음
+                </button>
               </div>
             </div>
-            <div
-              class="bg-[#005B99] rounded-br-xl rounded-bl-xl py-2"
-              id="closePopup"
-            >
-              <button id="closePopup" class="text-white">닫기</button>
+            <div id="step2" class="step hidden">
+              <h4 class="text-md font-semibold mb-1 text-left">
+                2단계: 인원 수 입력
+              </h4>
+              <input
+                class="w-full px-3 py-2 mb-4 border border-gray-300 rounded"
+                type="number"
+                id="peopleCount"
+                placeholder="같이 먹은 인원 총원"
+              />
+              <div class="flex justify-between">
+                <button
+                  class="px-4 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+                  onclick="prevStep(2)"
+                >
+                  이전
+                </button>
+                <button
+                  class="px-4 py-1 text-sm bg-[#005B99] text-white rounded hover:bg-blue-600"
+                  onclick="nextStep(2)"
+                >
+                  다음
+                </button>
+              </div>
+            </div>
+            <div id="step3" class="step hidden">
+              <h3 class="text-lg font-semibold mb-1 text-left">결과</h3>
+              <p class="mt-5 mb-8">
+                1인당 지불 금액:
+                <span id="result" class="font-bold"></span>원
+              </p>
+              <div class="flex justify-between">
+                <button
+                  class="px-4 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
+                  onclick="prevStep(3)"
+                >
+                  이전
+                </button>
+                <button
+                  class="px-4 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                  onclick="resetCalculator()"
+                >
+                  다시 계산하기
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </form>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.10.4/gsap.min.js"></script>
 
