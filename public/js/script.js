@@ -13,9 +13,10 @@ const extractBalances = async (data, month) => {
   try {
     data.forEach((item) => {
       if (item.__EMPTY_1 === Number(month)) {
-        const balance = Number(item.__EMPTY_7) - Number(item.__EMPTY_8);
+        console.log(item);
+        const balance = Number(item.__EMPTY_7) - Number(item.__EMPTY_9);
         document.getElementById("extraBalance").innerHTML =
-          startCounter(balance).toLocaleString() + " 원";
+          startCounter(balance) + " 원";
       }
     });
   } catch (error) {
@@ -24,10 +25,17 @@ const extractBalances = async (data, month) => {
 };
 
 const selectMonth = () => {
-  var monthSelect = document.getElementById("selectMonth");
-  var selectValue = monthSelect.options[monthSelect.selectedIndex].value;
+  let monthSelect = document.getElementById("selectMonth");
+  let selectValue = monthSelect.options[monthSelect.selectedIndex].value;
   extractBalances(globalTable, selectValue);
   return selectValue;
+};
+
+let attendance = "근무";
+const selectAttendance = () => {
+  let monthSelect = document.getElementById("attendance");
+  let selectValue = monthSelect.options[monthSelect.selectedIndex].value;
+  attendance = selectValue;
 };
 
 const initMonth = () => {
@@ -45,14 +53,42 @@ const userNameFetch = (name) => {
   }
 };
 
-const saveExcel = (event) => {
-  event.preventDefault();
-  console.log("Form submitted");
+const formatCurrency = (amount) => {
+  return parseInt(amount, 10).toLocaleString("ko-KR");
 };
+
+const submitExcelForm = document.querySelector("#submitExcel");
+const saveExcel = async (event) => {
+  event.preventDefault();
+
+  const payerName = submitExcelForm.elements.payerName.value;
+  const place = submitExcelForm.elements.place.value;
+  const amount = submitExcelForm.elements.amount.value;
+
+  const response = await fetch("/updateExcel", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      payerName: payerName,
+      place: place,
+      amount: amount,
+      attendance: attendance,
+    }),
+  });
+  console.log("🚀 ~ saveExcel ~ response:", response);
+};
+
+const userName = sessionStorage.getItem("userName");
+const params = new URLSearchParams({
+  userName: userName,
+});
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await fetch("/list-files");
+    const userName = sessionStorage.getItem("userName");
+    const response = await fetch(`/list-files?${params}`);
     // console.log("🚀 ~ document.addEventListener ~ response:", response);
     const { tableData, user } = await response.json();
     console.log(
