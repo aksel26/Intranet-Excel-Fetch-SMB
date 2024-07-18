@@ -56,7 +56,7 @@ console.log(
 app.use("/", authRoutes);
 app.use("/", excelRoutes);
 
-const server = app.listen(port, "0.0.0.0", () => {
+const server = app.listen(port, "192.168.0.2", () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 // Keep-Alive Timeout 설정 (밀리초 단위)
