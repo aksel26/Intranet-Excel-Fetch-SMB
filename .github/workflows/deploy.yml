@@ -29,4 +29,4 @@ jobs:
           echo "${SSH_PRIVATE_KEY}" > acg-extension-lightsail.pem
           chmod 600 acg-extension-lightsail.pem
           rsync -avz -e "ssh -i acg-extension-lightsail.pem -o StrictHostKeyChecking=no" ./ ubuntu@${LIGHTSAIL_IP}:/home/ubuntu/acg-extension
-          ssh -i acg-extension-lightsail.pem -o StrictHostKeyChecking=no ubuntu@${LIGHTSAIL_IP} "cd /home/ubuntu/acg-extension && npm install && pm2 restart all"
+          ssh -i acg-extension-lightsail.pem -o StrictHostKeyChecking=no ubuntu@${LIGHTSAIL_IP} "cd /home/ubuntu/acg-extension && npm install"
