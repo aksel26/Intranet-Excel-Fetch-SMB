@@ -30,4 +30,4 @@ jobs:
           chmod 600 acg-extension-lightsail.pem
           ssh -i acg-extension-lightsail.pem -o StrictHostKeyChecking=no ubuntu@${LIGHTSAIL_IP} "echo SSH connection established"
           rsync -avz --exclude='node_modules' -e "ssh -i acg-extension-lightsail.pem -o StrictHostKeyChecking=no" ./ ubuntu@${LIGHTSAIL_IP}:/home/ubuntu/acg-extension
-          ssh -i acg-extension-lightsail.pem -o StrictHostKeyChecking=no ubuntu@${LIGHTSAIL_IP} "cd /home/ubuntu/acg-extension && npm install && pm2 restart all"
+          ssh -i acg-extension-lightsail.pem -o StrictHostKeyChecking=no ubuntu@${LIGHTSAIL_IP} "cd /home/ubuntu/acg-extension && npm install"
