@@ -87,8 +87,10 @@ const params = new URLSearchParams({
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const userName = sessionStorage.getItem("userName");
-    const response = await fetch(`/list-files?${params}`);
+    const encodedUserName = encodeURIComponent(userName); // URL 인코딩
+    const url = `/list-files?name=${encodedUserName}`;
+
+    const response = await fetch(url);
     // console.log("🚀 ~ document.addEventListener ~ response:", response);
     const { tableData, user } = await response.json();
     console.log(

@@ -120,7 +120,9 @@ function writeFile(path, data) {
 }
 
 router.get("/list-files", requireLogin, async (req, res) => {
-  const { userName } = req.query;
+  const userName = req.query.name; // 자동으로 디코딩
+  console.log(`Received userName: ${userName}`);
+
   try {
     const directory = decodeURIComponent("test"); // SMB 서버의 폴더 경로
     const files = await listFilesFromSMB(directory);
