@@ -10,6 +10,7 @@ const users = [
   { id: "jhkim", userName: "김정현", password: "jhkim2467" },
   { id: "ysyoon", userName: "윤용설", password: "ysyoon2467" },
   { id: "dakim", userName: "김단아", password: "dakim2467" },
+  { id: "test", userName: "test", password: "1234" },
 ];
 
 router.post("/login", (req, res) => {
