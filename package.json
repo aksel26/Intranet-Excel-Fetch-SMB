@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "pm2start": "pm2 start ecosystem.config.js",
-    "start": "node server.js",
+    "start": "node --openssl-legacy-provider server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [],
